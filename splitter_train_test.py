@@ -35,6 +35,9 @@ testing_file = corpus_file.split(".")[0] + "-testing-" + str(round(100-float(pc_
 with open(training_file, "w") as f:
 	json.dump(corpus_training, f)
 
+print("saved the training corpus in",training_file)
+print("saved the testing corpus in",testing_file)
+
 with open(testing_file, "w") as f:
 	json.dump(corpus_testing, f)
 
