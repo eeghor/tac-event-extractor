@@ -71,6 +71,9 @@ class wFeatures(object):
 			st = "\n".join([st, "".join(['{0:<%d}'%kl,'\t{1:}']).format(k,v)])
 		return st
 
+	def __add__(self, other):
+		return defaultdict(int,{**self.feature_dict, **other.feature_dict})
+
 def get_markov_features(sent, word_idx):
 
 	f = wFeatures(sent, word_idx)
@@ -83,6 +86,21 @@ def get_markov_features(sent, word_idx):
 	f.add("+".join(["word+event#"+sent["words"][word_idx], sent["events"][word_idx]]),1)
 
 	return f
+
+def word_features(sent, word_idx):
+
+	f = wFeatures(sent, word_idx)
+
+	f.add("=".join(["word#", sent["words"][word_idx]]),1)
+	f.add("=".join(["lemmas#", sent["lemmas"][word_idx]]),1)
+	f.add("=".join(["POSs#", sent["POSs"][word_idx]]),1)
+	f.add("=".join(["entities#", sent["entities"][word_idx]]),1)
+	f.add("=".join(["events#", sent["events"][word_idx]]),1)
+
+	g = wFeatures(sent, word_idx)
+	g.add("index="+str(word_idx),1)
+
+	return f+g
 
 	# def get_features(self):
 
@@ -142,7 +160,7 @@ def get_markov_features(sent, word_idx):
 # 		self.feature_dict["+".join([":word+event:"+self.sent["words"][self.word_idx], self.sent["events"][self.word_idx]])] += 1
 
 
-s = get_markov_features({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
+s = word_features({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
 "entities":["dynamo", "floated", "in", "the", "sea."], "events":["dynamo", "floated", "in", "the", "sea."],"POSs":["N", "fB", "V", "E", "P"]},0)
 
 print(s)
