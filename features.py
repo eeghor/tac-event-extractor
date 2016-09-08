@@ -1,12 +1,15 @@
 from collections import defaultdict
+from nltk.corpus import wordnet
 
 class wFeatures(object):
 
-	def __init__(self, sent, word_idx=None):
+	def __init__(self, sent, what_features='all', word_idx=None, nomlex_dict=None):
 
 		self.sent = sent  		  # sentence
 		self.word_idx = word_idx  # word index: None to extract from all words, int index otherwise
 		self.feature_dict = defaultdict(int)
+		self.nomlex_dict = nomlex_dict
+		self.what_features = what_features
 
 	def add(self, name, weight):
 		self.feature_dict[name] += weight
@@ -66,13 +69,37 @@ class wFeatures(object):
 				self.next_entity = self.sent["entities"][self.__nidx]
 				self.next_event = self.sent["events"][self.__nidx]
 
-			self.feature_dict["->".join(["[-words-]"+self.prev_word, self.sent["words"][i]])] += 1
-			self.feature_dict["->".join(["[-lemmas-]"+self.prev_lemma, self.sent["lemmas"][i]])] += 1
-			self.feature_dict["->".join(["[-POSs-]"+self.prev_pos, self.sent["POSs"][i]])] += 1
-			self.feature_dict["->".join(["[-entities-]"+self.prev_entity, self.sent["entities"][i]])] += 1
-			self.feature_dict["->".join(["[-events-]"+self.prev_event, self.sent["events"][i]])] += 1
-			# emission features
-			self.feature_dict["+".join(["word+event#"+self.sent["words"][i], self.sent["events"][i]])] += 1
+			if self.what_features in ['all','markov']:
+				self.feature_dict["word transition [{} -> {}]".format(self.prev_word, self.sent["words"][i])] += 1
+				self.feature_dict["lemma transition [{} -> {}]".format(self.prev_lemma, self.sent["lemmas"][i])] += 1
+				self.feature_dict["pos transition [{} -> {}]".format(self.prev_pos, self.sent["POSs"][i])] += 1
+				self.feature_dict["entity transition [{} -> {}]".format(self.prev_entity, self.sent["entities"][i])] += 1
+				self.feature_dict["event transition [{} -> {}]".format(self.prev_event, self.sent["events"][i])] += 1
+				# emission features
+				self.feature_dict["word + event [{} + {}]".format(self.prev_word, self.sent["events"][i])] += 1
+
+			if self.what_features in ['all']:
+				# lemma synonyms and hypernyms from WordNet
+				if wordnet.synsets(self.sent["lemmas"][i]):
+				    for w in wordnet.synsets(self.sent["lemmas"][i].lower()):
+				        for ln in w.lemma_names():
+				            self.feature_dict["wordnet lemma synonym [{}]".format(ln)] += 1
+				        for g in w.hypernyms():
+				            for l in g.lemma_names():
+				                self.feature_dict["wordnet lemma hypernym [{}]".format(l)] += 1		
+
+				# sub-word features (applied to words)
+				cc = 0
+				for char in self.sent["words"][i]:
+					cc += 1
+					if cc == 1:
+						self.feature_dict["first letter in word [{}]".format(self.sent["words"][i][0])] += 1
+					if cc == 2:
+						self.feature_dict["last 2 letters in word [{}]".format(self.sent["words"][i][:2])] += 1
+					if cc == 3:
+						self.feature_dict["last 3 letters in word [{}]".format(self.sent["words"][i][:3])] += 1
+
+				self.feature_dict["word length [{}]".format(len(self.sent["words"][i]))] += 1
 
 	def __len__(self):
 		return len(self.feature_dict)
@@ -96,7 +123,7 @@ class wFeatures(object):
 
 
 s = wFeatures({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
-"entities":["dynamo", "floated", "in", "the", "sea."], "events":["dynamo", "floated", "in", "the", "sea."],"POSs":["N", "fB", "V", "E", "P"]},2)
+"entities":["dynamo", "floated", "in", "the", "sea."], "events":["dynamo", "floated", "in", "the", "sea."],"POSs":["N", "fB", "V", "E", "P"]},'markov',3)
 s.extract()
 
 print(s)

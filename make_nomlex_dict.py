@@ -1,6 +1,7 @@
 from collections import defaultdict
 import sys
 import re
+import json
 
 try:
 	nomlex_file = sys.argv[1]
@@ -55,3 +56,6 @@ if len(found_nouns) != len(found_verbs):
 	raise IndexError("The number of extracted nouns is not the same as the number of extracted verbs!")
 
 nomlex_dict = dict(zip(found_nouns, found_verbs))
+
+with open("nomlex_dict.json","w") as f:
+  json.dump(nomlex_dict, f)
