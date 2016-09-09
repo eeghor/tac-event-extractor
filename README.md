@@ -1,1 +1,3 @@
-# tac-event-extractor
+# Event extraction using the Structured Perceptron algorithm
+
+*  Suppose there is a sentence _Cat eats a cake._ We labelled this sentence as *E E NE NE* where NE stands for "non-event" and E is for "event". This is almost correct except for the word "cat" which is in fact a NE. Then all features present in this sentence that are related on label NE being on the word "cat" have to be get their weights reduced by 1. Such features could be, for example, "E is followed by E" or "cat is E" or "entity is E". Other features unrelated to the incorrect label have to get their weights __increased__ by 1. For example, "cat is followed by eats" or "word pair a-cake"  or "NE is followed by NE" will all be encouraged by increasing their weights.
