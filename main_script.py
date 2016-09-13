@@ -16,3 +16,8 @@ with open(os.path.join(current_dir, "gazetteers/kaggle_us_babynames.csv"),"r") a
 print(kaggle_babynames_df.head(3))
 
 print("found {} unique names in the Kaggle US babynames dataset".format(kaggle_babynames_df["Name"].nunique()))
+
+# check the training dataset for names and replace any identified names with the token NAME
+
+for sent in train_df:
+	sent["words"] = ["NAME" if w.lower() in kaggle_babynames_df["Name"].str.lower() else w for w in sent["words"]]

@@ -1,7 +1,7 @@
 # Event extraction using the Structured Perceptron algorithm
 
 ## Training and testing data
-We have both the training and testing datasets as JSON files in the **data"" directory. The main script first loads the training data and does some preprocessing.
+We have both the training and testing datasets as JSON files in the **data** directory. The main script first loads the training data and does some preprocessing.
 
 ## Preprocessing
 * Find all names in the text and replace them with a token **NAME**. To find the names, we use the US babyname dataset from Kaggle as well as the name gazeteers from GATE.
