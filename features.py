@@ -1,6 +1,11 @@
 from collections import defaultdict
 from nltk.corpus import wordnet
 
+"""
+EXTRACT FEATURES FROM A WORD.
+* can either extract all fetures or only Markov features needed for the Viterbi algorithm
+"""
+
 class wFeatures(object):
 
 	def __init__(self, sent, what_features='all', word_idx=None, nomlex_dict=None):
@@ -76,7 +81,7 @@ class wFeatures(object):
 				self.feature_dict["entity transition [{} -> {}]".format(self.prev_entity, self.sent["entities"][i])] += 1
 				self.feature_dict["event transition [{} -> {}]".format(self.prev_event, self.sent["events"][i])] += 1
 				# emission features
-				self.feature_dict["word + event [{} + {}]".format(self.prev_word, self.sent["events"][i])] += 1
+				self.feature_dict["event word emission [{} -> {}]".format( self.sent["events"][i], self.sent["words"][i])] += 1
 
 			if self.what_features in ['all']:
 				# lemma synonyms and hypernyms from WordNet
@@ -123,7 +128,7 @@ class wFeatures(object):
 
 
 s = wFeatures({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
-"entities":["dynamo", "floated", "in", "the", "sea."], "events":["dynamo", "floated", "in", "the", "sea."],"POSs":["N", "fB", "V", "E", "P"]},'markov',3)
+"entities":["dynamo", "floated", "in", "the", "sea."], "events":["O", "swim", "O", "O", "O"],"POSs":["N", "fB", "V", "E", "P"]},'markov',3)
 s.extract()
 
 print(s)
