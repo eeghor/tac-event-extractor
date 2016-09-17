@@ -10,14 +10,8 @@ train_file = sys.argv[1]  # training dataset
 with open(train_file, "r") as f:
 	train_df = json.load(f)
 
-with open(os.path.join(current_dir, "gazetteers/kaggle_us_babynames.csv"),"r") as f:
-	kaggle_babynames_df = pd.read_csv(f, usecols=["Name","Gender"])
-
-print(kaggle_babynames_df.head(3))
-
-print("found {} unique names in the Kaggle US babynames dataset".format(kaggle_babynames_df["Name"].nunique()))
-
-# check the training dataset for names and replace any identified names with the token NAME
-
-for sent in train_df:
-	sent["words"] = ["NAME" if w.lower() in kaggle_babynames_df["Name"].str.lower() else w for w in sent["words"]]
+# let's find out what and how many event labels are there; note that some words can have a few labels on them, separated by a coma
+EVENT_LABEL_SET = {event_label  for sent in train_df for event_labels in sent["events"] for event_label in event_labels.split(",")}
+NUM_EVENT_LABELS = len(EVENT_LABEL_SET)
+print("found {} event labels in the training dataset".format(NUM_EVENT_LABELS))
+print(EVENT_LABEL_SET)
