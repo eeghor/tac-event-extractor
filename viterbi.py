@@ -9,8 +9,8 @@ class Viterbi(SearchAlgorithm):
 		SearchAlgorithm.__init__(self,sentence, possible_labels, fw)
 		self._NW = len(sentence)
 		self._NL = len(possible_labels)
-		self._vit_matrix = np.zeros(shape=(self._NL,self._NW +2))
-		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW+1))
+		self._vit_matrix = np.zeros(shape=(self._NL,self._NW))
+		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW))
 		self.possible_labels = possible_labels
 
 	def _run_viterbi_algorithm(self):
@@ -43,7 +43,14 @@ class Viterbi(SearchAlgorithm):
 		highest_score = max(scores)
 		index_highest_score = scores.index(highest_score)
 
-		for 
+		paz = [self.possible_labels[index_highest_score]]
+
+		# go backwards through the word indices
+		for i in range(self._NW-1, 0,-1):
+			index_highest_score = self._backpointer_matrix[index_highest_score,i]
+			paz.append(self.possible_labels[self._backpointer_matrix[index_highest_score,i-1]])
+
+
 
 
 			
