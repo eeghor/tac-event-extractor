@@ -11,18 +11,21 @@ class Viterbi(SearchAlgorithm):
 		self._NL = len(possible_labels)
 		self._vit_matrix = np.zeros(shape=(self._NL,self._NW +2))
 		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW))
-		self.possible_labels = ["START"]+possible_labels+["END"]
+		self.possible_labels = possible_labels
 
 	def _run_viterbi_algorithm(self):
 
-		for j, label in enumerate(possible_labels, 1):
-			self._vit_matrix[j-1, 0] = fw["word i + event i: [{}]+[{}]".format(self.sentence["words"][0],self.sentence["events"][j])+\
-										fw["event i-1 -> event i: [{}]->[{}]".format(self.sentence["events"][j-1],self.sentence["events"][j])
-
-		for i, w in enumerate(self.sentence["words"]):
-
+		# fill in the 1st column
+		for j, label in enumerate(possible_labels):
+			self._vit_matrix[j, 0] = fw["(ev-1):[{}]->(ev)[{}]".format("START",self.sentence["events"][j]+\
+										fw["(ev):[{}]=>(word)[{}]".format(self.sentence["events"][j],self.sentence["words"][0])
+		# for all other columns, i.e. second word to the last word
+		for i, w in enumerate(self.sentence["words"][1:],1):
 			for j, label in enumerate(possible_labels):
-
+				# introduce a temporary storage for scores: a list [(scores if coming from l1), (scores if coming from l2),...]
+				scores = []
+				# suppose label has been placed on word; then run through all the labels and calculate scores
+				for 
 				self._vit_matrix[j, 0] = fw["word i + event i: [{}]+[{}]".format(self.sentence["words"][i],self.sentence["events"][i])
 				
 				self._vit_matrix[j,i] = self._vit_matrix[,i-1] fw["event i-1 -> event i: [{}]->[{}]".format(self.sentence["events"][i-1],self.sentence["events"][i])]+\
