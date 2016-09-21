@@ -41,8 +41,10 @@ for sent in train_df:
 	sent_features = defaultdict(int)
 	vi = Viterbi(sent, EVENT_LABEL_SET, fd)
 	predicted_labels = vi._run_viterbi_algorithm()
+	print("predicted:",predicted_labels)
+	print("actual:",sent["events"])
 	for i,w in enumerate(sent["words"]):
-		ff = FeatureFactory(sent, i, nomlex_dict)
+		ff = FeatureFactory(sent, i, nomlex_dict).extract()
 		if sent["events"][i] != predicted_labels[i]:
 			for k in ff:
 				fd[k] -= 1

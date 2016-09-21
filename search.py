@@ -9,5 +9,5 @@ class SearchAlgorithm(object):
 		# features_n_weights is a defaultdict of features like {f1: weight1,f2: weight2,..}
 
 		self.sentence = sentence 
-		self.labels = possible_labels
+		self.labels = list(possible_labels)
 		self.fw = features_n_weights

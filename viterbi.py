@@ -19,8 +19,8 @@ class Viterbi(SearchAlgorithm):
 		# fill in the 1st column
 		for j, label in enumerate(self.labels):
 
-			self._vit_matrix[j, 0] = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",self.sentence["events"][j])]+\
-										self.fw["(ev):[{}]=>(word)[{}]".format(self.sentence["events"][j],self.sentence["words"][0])]
+			self._vit_matrix[j, 0] = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",label)]+\
+										self.fw["(ev):[{}]=>(word)[{}]".format(label,self.sentence["words"][0])]
 			self._backpointer_matrix[j,0] = -1
 
 		# for all other columns, i.e. from second word to the last word
@@ -39,14 +39,14 @@ class Viterbi(SearchAlgorithm):
 				self._backpointer_matrix[j,i] = index_highest_score
 		# finally, the very last imaginary termination
 		scores = [self._vit_matrix[j, -1] +
-					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END").format(label,w)] for j, label in enumerate(self.labels)]
+					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END")] for j, label in enumerate(self.labels)]
 
 		label_index = scores.index(max(scores))  # index of the highest scoring label at termination
 
 		v = self._backpointer_matrix[label_index,self._NW-1]  # index of previous label best scoring for the label scoring highest at termination
 
 		# go backwards through the word indices
-		for i in range(self._NW-1, 0,-1):
+		for i in range(self._NW-1, -1,-1):
 			self.paz.append(self.labels[label_index])
 			label_index = self._backpointer_matrix[label_index,i]
 
