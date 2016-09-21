@@ -10,12 +10,4 @@ class SearchAlgorithm(object):
 
 		self.sentence = sentence 
 		self.labels = possible_labels
-		self.assigned_labels = []  # the best sequence of labels to be found by algorithm
 		self.fw = features_n_weights
-		
-
-
-s=SearchAlgorithm({"words":["this","is","very","interesting"], "POSs":["VV","VB","NN","JJ"]},
-					["Event","Nonevent"], {"f1":12,"f2":3})
-
-print(s.sentence)
