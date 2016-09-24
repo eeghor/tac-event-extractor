@@ -33,66 +33,70 @@ class Scorer(object):
 
     def _get_scores(self):
 
-        for i, lab in enumerate(self.predicted_labels):
+        for s, this_sentence_pred in enumerate(self.predicted_labels): 
 
-            if self.correct_labels[i] == self.predicted_labels[i]:  # guessed right
+            this_sentence_correct = self.predicted_labels[s]
 
-                if self.correct_labels[i] == "O":  # but it's non-event
-                    pass
-                else:  # it's an event
-                    for e in self.correct_labels[i].split(","):  # there could be several event labels all predicted correctly
-                        self.score_dict[e]["TP"] += 1
-                        self.score_dict[e]["#"] += 1  # just counting ocurrences
+            for i, lab in enumerate(this_sentence_pred):  #  this is sentence number s, iterate by words
 
-            else:  # guessed wrong
+                if this_sentence_correct[i] == this_sentence_pred[i]:  # guessed right
 
-                if self.correct_labels[i] == "O":  # and it's actually a non-event while we said event
-                    for e in self.predicted_labels[i].split(","):  # there could be several event labels
-                        self.score_dict[e]["FP"] += 1  # 
+                    if this_sentence_correct[i] == "O":  # but it's non-event
+                        pass
+                    else:  # it's an event
+                        for e in this_sentence_correct[i].split(","):  # there could be several event labels all predicted correctly
+                            self.score_dict[e]["TP"] += 1
+                            self.score_dict[e]["#"] += 1  # just counting ocurrences
 
-                else:  # it's actually some event but we got it wrong: we think either non-event or wrong event or partly right event
+                else:  # guessed wrong
 
-                    # suppose we reckon it's non-event
-                    if self.predicted_labels[i] == "O":
-                        for e in self.correct_labels[i].split(","):  # there could be several event labels
-                            self.score_dict[e]["FN"] += 1
-                            self.score_dict[e]["#"] += 1 
+                    if this_sentence_correct[i] == "O":  # and it's actually a non-event while we said event
+                        for e in this_sentence_pred[i].split(","):  # there could be several event labels
+                            self.score_dict[e]["FP"] += 1  # 
 
-                    else:  # we think it's an event but a different one (i.e. not all predicted labels are right)
-                        
-                        clabs = self.correct_labels[i].split(",")
-                        for e in clabs:
-                            self.score_dict[e]["#"] += 1
-                        plabs = self.predicted_labels[i].split(",")
+                    else:  # it's actually some event but we got it wrong: we think either non-event or wrong event or partly right event
 
-                        for ep in plabs:
-                            if ep in clabs:  # this label is among the correct ones
-                                self.score_dict[ep]["TP"] += 1
-                            else:
-                                self.score_dict[ep]["FP"] += 1
-                        for cl in clabs:
-                            if cl not in plabs:  # some of the correct labels were not predicted
-                                self.score_dict[cl]["FN"] += 1
+                        # suppose we reckon it's non-event
+                        if this_sentence_pred[i] == "O":
+                            for e in this_sentence_correct[i].split(","):  # there could be several event labels
+                                self.score_dict[e]["FN"] += 1
+                                self.score_dict[e]["#"] += 1 
 
-        # now calculate precision, recall and f-score for each event collected in score_dict
-     
-        for event in self.score_dict:
-           # to calculate precision, we need TP+FP>0
-           try:
-               self.score_dict[event]["PRE"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FP"]),2)
-           except ZeroDivisionError:
-               self.score_dict[event]["PRE"] = float('nan')
-           # to calculate recall we need TP+FN>0
-           try:
-               self.score_dict[event]["REC"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FN"]),2)
-           except ZeroDivisionError:
-               self.score_dict[event]["REC"] = float('nan')
+                        else:  # we think it's an event but a different one (i.e. not all predicted labels are right)
+                            
+                            clabs = this_sentence_correct[i].split(",")
+                            for e in clabs:
+                                self.score_dict[e]["#"] += 1
+                            plabs = this_sentence_pred[i].split(",")
 
-           # to calculate f-score, we need both precision and recall be nonzero; 
-           
-           if self.score_dict[event]["PRE"]*self.score_dict[event]["REC"] > 0:
-                self.score_dict[event]["F"] = 1/self.score_dict[event]["PRE"] + 1/self.score_dict[event]["REC"]
-           else:
-                self.score_dict[event]["F"] = float('nan')
-        
-        return self.score_dict
+                            for ep in plabs:
+                                if ep in clabs:  # this label is among the correct ones
+                                    self.score_dict[ep]["TP"] += 1
+                                else:
+                                    self.score_dict[ep]["FP"] += 1
+                            for cl in clabs:
+                                if cl not in plabs:  # some of the correct labels were not predicted
+                                    self.score_dict[cl]["FN"] += 1
+
+            # now calculate precision, recall and f-score for each event collected in score_dict
+            
+            for event in self.score_dict:
+               # to calculate precision, we need TP+FP>0
+               try:
+                   self.score_dict[event]["PRE"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FP"]),2)
+               except ZeroDivisionError:
+                   self.score_dict[event]["PRE"] = float('nan')
+               # to calculate recall we need TP+FN>0
+               try:
+                   self.score_dict[event]["REC"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FN"]),2)
+               except ZeroDivisionError:
+                   self.score_dict[event]["REC"] = float('nan')
+
+               # to calculate f-score, we need both precision and recall be nonzero; 
+               
+               if self.score_dict[event]["PRE"]*self.score_dict[event]["REC"] > 0:
+                    self.score_dict[event]["F"] = 1/self.score_dict[event]["PRE"] + 1/self.score_dict[event]["REC"]
+               else:
+                    self.score_dict[event]["F"] = float('nan')
+            
+            return self.score_dict

@@ -25,7 +25,10 @@ with open(train_file, "r") as f:
 
 all_events = defaultdict(set)
 
+predicted_labels_training_set = []
+
 for sent in training_set:
+	predicted_labels_training_set.append([])
 	for i, event_labels in enumerate(sent["events"]):
 		for event_label in event_labels.split(","):
 			all_events[event_label].add(sent["words"][i].lower())
@@ -57,7 +60,8 @@ for sent in training_set:
 
 print("collected {} features".format(len(fd)))
 
-sco = Scorer(["O","Attack","O","O","O","Business"],["O","Business","Attack", "O","O","Business"])
+sco = Scorer([["O","Attack","O","O","O","Business"],["O","Business","O","Business","O","Business"]],
+	[["O","Business","Attack", "O","O","Business"],["O","Attack","Attack", "O","Attack","Business"]])
 print(sco._get_scores())
 
 nvi = 8
@@ -80,7 +84,7 @@ for i in range(nvi):
 				for k in ff:
 					fd[k] +=1
 	# now get scores 
-	
+
 	end_time = time.time()
 
 print("elapsed time: {} minutes".format(round((end_time-start_time)/60.0),1))
