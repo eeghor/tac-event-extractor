@@ -60,23 +60,28 @@ print("collected {} features".format(len(fd)))
 sco = Scorer(["O","Attack","O","O","O","Business"],["O","Business","Attack", "O","O","Business"])
 print(sco._get_scores())
 
-start_time = time.time()
-print("starting viterbi run...")
-for sent in training_set:
-	sent_features = defaultdict(int)
-	vi = Viterbi(sent, all_event_labels, fd)
-	predicted_labels = vi._run_viterbi_algorithm()
-	# print("predicted:",predicted_labels)
-	# print("actual:",sent["events"])
-	for i,w in enumerate(sent["words"]):
-		ff = FeatureFactory(sent, i, nomlex_dict).extract()
-		if sent["events"][i] != predicted_labels[i]:
-			for k in ff:
-				fd[k] -= 1
-		else:
-			for k in ff:
-				fd[k] +=1
-end_time = time.time()
+nvi = 8
+
+for i in range(nvi):
+	start_time = time.time()
+	print("starting viterbi run {}...".format(i))
+	for sent in training_set:
+		sent_features = defaultdict(int)
+		vi = Viterbi(sent, all_event_labels, fd)
+		predicted_labels = vi._run_viterbi_algorithm()
+		# print("predicted:",predicted_labels)
+		# print("actual:",sent["events"])
+		for i,w in enumerate(sent["words"]):
+			ff = FeatureFactory(sent, i, nomlex_dict).extract()
+			if sent["events"][i] != predicted_labels[i]:
+				for k in ff:
+					fd[k] -= 1
+			else:
+				for k in ff:
+					fd[k] +=1
+	# now get scores 
+	
+	end_time = time.time()
 
 print("elapsed time: {} minutes".format(round((end_time-start_time)/60.0),1))
 
