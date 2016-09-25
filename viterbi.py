@@ -13,8 +13,9 @@ class Viterbi(SearchAlgorithm):
 		self._vit_matrix = np.zeros(shape=(self._NL,self._NW))
 		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW)).astype(int)
 		self.paz = []
+		#print(self._backpointer_matrix)
 
-	def _run_viterbi_algorithm(self):
+	def run(self):
 
 		# fill in the 1st column
 		for j, label in enumerate(self.labels):
@@ -42,7 +43,7 @@ class Viterbi(SearchAlgorithm):
 					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END")] for j, label in enumerate(self.labels)]
 
 		label_index = scores.index(max(scores))  # index of the highest scoring label at termination
-
+		#print(self._backpointer_matrix)
 		v = self._backpointer_matrix[label_index,self._NW-1]  # index of previous label best scoring for the label scoring highest at termination
 
 		# go backwards through the word indices
@@ -58,8 +59,7 @@ class Viterbi(SearchAlgorithm):
 from collections import defaultdict
 
 f = defaultdict(int, {"(ev-1):[O]->(ev)[O]": 1, "(ev-1):[Jump]->(ev)[O]": 2, "(ev-1):[O]->(ev)[Jump]": 3})
-vit = Viterbi({"words":["Fly","is","jumping","."], "events":["O","O","Jump","O"]}, ["Jump","Sit","O"],f)
-pz = vit._run_viterbi_algorithm()
+pz = Viterbi({"words":["Fly","is","jumping","."], "events":["O","O","Jump","O"]}, ["Jump","Sit","O"],f).run()
 print(pz)
 
 

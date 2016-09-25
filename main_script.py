@@ -7,7 +7,7 @@ from collections import defaultdict
 from viterbi import Viterbi
 import time
 #import pdb
-from scorer import Scorer
+from scorer import Scores
 
 #pdb.set_trace()
 
@@ -25,10 +25,10 @@ with open(train_file, "r") as f:
 
 all_events = defaultdict(set)
 
-predicted_labels_training_set = []
+
 
 for sent in training_set:
-	predicted_labels_training_set.append([])
+# 	predicted_labels_training_set.append([])
 	for i, event_labels in enumerate(sent["events"]):
 		for event_label in event_labels.split(","):
 			all_events[event_label].add(sent["words"][i].lower())
@@ -58,32 +58,43 @@ for sent in training_set:
 		ff = FeatureFactory(sent, i, nomlex_dict)
 		fd.update(ff.extract())
 
+for k in fd:
+	fd[k] = 0
+
 print("collected {} features".format(len(fd)))
 
-sco = Scorer([["O","Attack","O","O","O","Business"],["O","Business","O","Business","O","Business"]],
-	[["O","Business","Attack", "O","O","Business"],["O","Attack","Attack", "O","Attack","Business"]])
-print(sco._get_scores())
+Scores([["O","Attack","O","O","O","Business"],["O","Business","O","Business","O","Business"]],
+	[["O","Business","Attack", "O","O","Business"],["O","Attack","Attack", "O","Attack","Business"]]).show()
+
 
 nvi = 8
 
+
+start_time = time.time()
 for i in range(nvi):
-	start_time = time.time()
+	predicted_labels_training_set = []
+	print(predicted_labels_training_set)
 	print("starting viterbi run {}...".format(i))
-	for sent in training_set:
-		sent_features = defaultdict(int)
-		vi = Viterbi(sent, all_event_labels, fd)
-		predicted_labels = vi._run_viterbi_algorithm()
+	for j, sent in enumerate(training_set):
+		#sent_features = defaultdict(int)
+		predicted_labels_training_set.append(Viterbi(sent, all_event_labels, fd).run())
+		# print("after viterbi:",predicted_labels_training_set)
 		# print("predicted:",predicted_labels)
 		# print("actual:",sent["events"])
 		for i,w in enumerate(sent["words"]):
 			ff = FeatureFactory(sent, i, nomlex_dict).extract()
-			if sent["events"][i] != predicted_labels[i]:
+			# print("features from word are",ff)
+			if sent["events"][i] != predicted_labels_training_set[j][i]:
 				for k in ff:
 					fd[k] -= 1
 			else:
 				for k in ff:
 					fd[k] +=1
+	#print(predicted_labels_training_set)
 	# now get scores 
+	training_labels = [st["events"] for st in training_set]
+	print("have {} training sentences and {} predicted ones".format(len(training_labels), len(predicted_labels_training_set)))
+	Scores(training_labels, predicted_labels_training_set).show()
 
 	end_time = time.time()
 

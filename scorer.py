@@ -23,7 +23,7 @@ Note:
 
 from collections import defaultdict
 
-class Scorer(object):
+class Scores(object):
 
     def __init__(self, correct_labels, predicted_labels):
 
@@ -31,43 +31,45 @@ class Scorer(object):
         self.predicted_labels = predicted_labels
         self.score_dict = defaultdict(lambda: defaultdict(int))
 
-    def _get_scores(self):
+        assert len(self.correct_labels) == len(self.predicted_labels), "WE'VE GOT A PROBLEM! unequal number of correctly labelled and predicted sentences!"
 
-        for s, this_sentence_pred in enumerate(self.predicted_labels): 
+        for s, sent_pred in enumerate(self.predicted_labels): 
 
-            this_sentence_correct = self.predicted_labels[s]
+            sent_corr = self.correct_labels[s]
 
-            for i, lab in enumerate(this_sentence_pred):  #  this is sentence number s, iterate by words
+            assert len(sent_pred) == len(sent_corr), "WE'VE GOT A PROBLEM! unequal number of correctly labelled and predicted words in a sentence!"
 
-                if this_sentence_correct[i] == this_sentence_pred[i]:  # guessed right
+            for i, lab in enumerate(sent_pred):  #  this is sentence number s, iterate by words
 
-                    if this_sentence_correct[i] == "O":  # but it's non-event
+                if sent_corr[i] == sent_pred[i]:  # guessed right
+
+                    if sent_corr[i] == "O":  # but it's non-event
                         pass
                     else:  # it's an event
-                        for e in this_sentence_correct[i].split(","):  # there could be several event labels all predicted correctly
+                        for e in sent_corr[i].split(","):  # there could be several event labels all predicted correctly
                             self.score_dict[e]["TP"] += 1
                             self.score_dict[e]["#"] += 1  # just counting ocurrences
 
                 else:  # guessed wrong
 
-                    if this_sentence_correct[i] == "O":  # and it's actually a non-event while we said event
-                        for e in this_sentence_pred[i].split(","):  # there could be several event labels
+                    if sent_corr[i] == "O":  # and it's actually a non-event while we said event
+                        for e in sent_pred[i].split(","):  # there could be several event labels
                             self.score_dict[e]["FP"] += 1  # 
 
                     else:  # it's actually some event but we got it wrong: we think either non-event or wrong event or partly right event
 
                         # suppose we reckon it's non-event
-                        if this_sentence_pred[i] == "O":
-                            for e in this_sentence_correct[i].split(","):  # there could be several event labels
+                        if sent_pred[i] == "O":
+                            for e in sent_corr[i].split(","):  # there could be several event labels
                                 self.score_dict[e]["FN"] += 1
                                 self.score_dict[e]["#"] += 1 
 
                         else:  # we think it's an event but a different one (i.e. not all predicted labels are right)
                             
-                            clabs = this_sentence_correct[i].split(",")
+                            clabs = sent_corr[i].split(",")
                             for e in clabs:
                                 self.score_dict[e]["#"] += 1
-                            plabs = this_sentence_pred[i].split(",")
+                            plabs = sent_pred[i].split(",")
 
                             for ep in plabs:
                                 if ep in clabs:  # this label is among the correct ones
@@ -78,25 +80,42 @@ class Scorer(object):
                                 if cl not in plabs:  # some of the correct labels were not predicted
                                     self.score_dict[cl]["FN"] += 1
 
-            # now calculate precision, recall and f-score for each event collected in score_dict
-            
-            for event in self.score_dict:
-               # to calculate precision, we need TP+FP>0
-               try:
-                   self.score_dict[event]["PRE"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FP"]),2)
-               except ZeroDivisionError:
-                   self.score_dict[event]["PRE"] = float('nan')
-               # to calculate recall we need TP+FN>0
-               try:
-                   self.score_dict[event]["REC"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FN"]),2)
-               except ZeroDivisionError:
-                   self.score_dict[event]["REC"] = float('nan')
+        # now calculate precision, recall and f-score for each event collected in score_dict
+        
+        for event in self.score_dict:
+           # to calculate precision, we need TP+FP>0
+           try:
+               self.score_dict[event]["PRE"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FP"]),2)
+           except ZeroDivisionError:
+               self.score_dict[event]["PRE"] = float('nan')
+           # to calculate recall we need TP+FN>0
+           try:
+               self.score_dict[event]["REC"] = round(self.score_dict[event]["TP"]/(self.score_dict[event]["TP"] + self.score_dict[event]["FN"]),2)
+           except ZeroDivisionError:
+               self.score_dict[event]["REC"] = float('nan')
 
-               # to calculate f-score, we need both precision and recall be nonzero; 
-               
-               if self.score_dict[event]["PRE"]*self.score_dict[event]["REC"] > 0:
-                    self.score_dict[event]["F"] = 1/self.score_dict[event]["PRE"] + 1/self.score_dict[event]["REC"]
-               else:
-                    self.score_dict[event]["F"] = float('nan')
-            
-            return self.score_dict
+           # to calculate f-score, we need both precision and recall be nonzero; 
+           
+           if self.score_dict[event]["PRE"]*self.score_dict[event]["REC"] > 0:
+                self.score_dict[event]["F"] = round(2*self.score_dict[event]["PRE"]*self.score_dict[event]["REC"]/(self.score_dict[event]["PRE"]+self.score_dict[event]["REC"]),2)
+           else:
+                self.score_dict[event]["F"] = float('nan')
+
+
+
+    def show(self):
+
+        hd = "{:37s}\t{:6s}\t{:6s}\t{:6}\t{:6}\t{:6}\t{:6}\t{:6}".format("event_type","#",
+                 "PRE", "REC", "F", "TP", "FP", "FN")
+        print(hd)
+    
+        for ev in self.score_dict:
+            t="{:37s}\t{:6s}\t{:6s}\t{:6}\t{:6}\t{:6}\t{:6}\t{:6}".format(ev, 
+                str(self.score_dict[ev]["#"]), 
+                str(round(self.score_dict[ev]["PRE"]*100,2)),
+                str(round(self.score_dict[ev]["REC"]*100,2)),
+                str(round(self.score_dict[ev]["F"]*100,2)),
+                str(self.score_dict[ev]["TP"]),
+                str(self.score_dict[ev]["FP"]),
+                str(self.score_dict[ev]["FN"]))
+            print(t)    
