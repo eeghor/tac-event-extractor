@@ -77,6 +77,8 @@ for i in range(nvi):
 	print("starting viterbi run {}...".format(i))
 	for j, sent in enumerate(training_set):
 		#sent_features = defaultdict(int)
+		print("original sentence:",sent["events"])
+		print("viterbi prediction:",Viterbi(sent, all_event_labels, fd).run())
 		predicted_labels_training_set.append(Viterbi(sent, all_event_labels, fd).run())
 		# print("after viterbi:",predicted_labels_training_set)
 		# print("predicted:",predicted_labels)

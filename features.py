@@ -54,6 +54,14 @@ class FeatureFactory(object):
 		# last 2 letters in word
 		if len(self.sentence["words"][i]) > 4:
 			self.add("(word_end2))[{}]".format(self.sentence["words"][i][-2:]), 1)
+		# is alphanumeric
+		if ~self.sentence["words"][i].isalnum():
+			self.add("(not_alphanumeric)", 1)
+		# lemma
+		self.add("(lemma)[{}]".format(self.sentence["lemmas"][i]), 1)
+		# word length
+		if len(self.sentence["words"][i]) < 3:
+			self.add("(very_short_word)", 1)
 
 		return self.feature_dict
 
