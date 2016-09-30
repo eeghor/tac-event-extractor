@@ -29,6 +29,7 @@ class FeatureFactory(object):
 		self.add("(word-1):[{}]->(word)[{}]".format(self.sentence["words"][__pidx],self.sentence["words"][i]), 1)
 		self.add("(lem-1):[{}]->(lem)[{}]".format(self.sentence["lemmas"][__pidx],self.sentence["lemmas"][i]), 1)
 		self.add("(lem-2):[{}]->(lem-1)[{}]->(lem)[{}]".format(self.sentence["lemmas"][i-2], self.sentence["lemmas"][__pidx],self.sentence["lemmas"][i]), 1)
+		self.add("(pos-2):[{}]->(pos-1)[{}]->(pos)[{}]".format(self.sentence["POSs"][i-2], self.sentence["POSs"][__pidx],self.sentence["POSs"][i]), 1)
 		self.add("(pos-1):[{}]->(pos)[{}]".format(self.sentence["POSs"][__pidx],self.sentence["POSs"][i]), 1)
 		self.add("(ent-1):[{}]->(ent)[{}]".format(self.sentence["entities"][__pidx],self.sentence["entities"][i]), 1)
 		self.add("(ev-1):[{}]->(ev)[{}]".format(self.sentence["events"][__pidx],self.sentence["events"][i]), 1)
@@ -59,6 +60,12 @@ class FeatureFactory(object):
 			self.add("(not_alphanumeric)", 1)
 		# lemma
 		self.add("(lemma)[{}]".format(self.sentence["lemmas"][i]), 1)
+		# entity
+		self.add("(entity)[{}]".format(self.sentence["entities"][i]), 1)
+		if self.sentence["entities"][i] == "O":
+			self.add("(non_entity)", 1)
+		# POS
+		self.add("(POS)[{}]".format(self.sentence["POSs"][i]), 1)
 		# word length
 		if len(self.sentence["words"][i]) < 3:
 			self.add("(very_short_word)", 1)

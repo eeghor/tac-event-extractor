@@ -8,6 +8,7 @@ from viterbi import Viterbi
 import time
 #import pdb
 from scorer import Scores
+import copy
 
 #pdb.set_trace()
 
@@ -77,21 +78,28 @@ for i in range(nvi):
 	print("starting viterbi run {}...".format(i))
 	for j, sent in enumerate(training_set):
 		#sent_features = defaultdict(int)
-		print("original sentence:",sent["events"])
-		print("viterbi prediction:",Viterbi(sent, all_event_labels, fd).run())
+		#print("original sentence:",sent["events"])
+		#print("viterbi prediction:",Viterbi(sent, all_event_labels, fd).run())
 		predicted_labels_training_set.append(Viterbi(sent, all_event_labels, fd).run())
+		tmp_sent = copy.deepcopy(sent)
+		tmp_sent["events"] = predicted_labels_training_set[j]
 		# print("after viterbi:",predicted_labels_training_set)
 		# print("predicted:",predicted_labels)
 		# print("actual:",sent["events"])
 		for i,w in enumerate(sent["words"]):
 			ff = FeatureFactory(sent, i, nomlex_dict).extract()
+			ff_pr = FeatureFactory(tmp_sent, i, nomlex_dict).extract()
 			# print("features from word are",ff)
-			if sent["events"][i] != predicted_labels_training_set[j][i]:
-				for k in ff:
+			if sent["events"][i] != tmp_sent["events"][i]:
+				#print("actual label {} - predicted {}".format(sent["events"][i], predicted_labels_training_set[j][i]))
+				#print("need to update weights")
+				for k in ff_pr:
 					fd[k] -= 1
+				for g in ff:
+					fd[g] += 1
 			else:
-				for k in ff:
-					fd[k] +=1
+				for k in ff_pr:
+					fd[k] -= 1
 	#print(predicted_labels_training_set)
 	# now get scores 
 	training_labels = [st["events"] for st in training_set]

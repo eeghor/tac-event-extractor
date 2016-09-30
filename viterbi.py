@@ -2,6 +2,7 @@ from search import SearchAlgorithm
 from collections import defaultdict
 import numpy as np
 
+
 class Viterbi(SearchAlgorithm):
 
 	def __init__(self,sentence, possible_labels, features_n_weights):
@@ -14,6 +15,8 @@ class Viterbi(SearchAlgorithm):
 		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW)).astype(int)
 		self.paz = []
 		#print(self._backpointer_matrix)
+		#print("viterbi: currently largest weights:", sorted([(k,v) for k,v in self.fw.items()], key=lambda x: x[1], reverse=True)[:10])
+		#print("viterbi: PASSED largest weights:", sorted([(k,v) for k,v in features_n_weights.items()], key=lambda x: x[1], reverse=True)[:10])
 
 	def run(self):
 
@@ -22,7 +25,7 @@ class Viterbi(SearchAlgorithm):
 
 			self._vit_matrix[j, 0] = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",label)]+\
 										self.fw["(ev):[{}]=>(word)[{}]".format(label,self.sentence["words"][0])]
-			self._backpointer_matrix[j,0] = -1
+			self._backpointer_matrix[j, 0] = -1
 
 		# for all other columns, i.e. from second word to the last word
 		for i, w in enumerate(self.sentence["words"][1:],1):
@@ -33,11 +36,18 @@ class Viterbi(SearchAlgorithm):
 				for l, lb in enumerate(self.labels):
 					scores.append(self._vit_matrix[l, i-1] +\
 						self.fw["(ev-1):[{}]->(ev)[{}]".format(lb,label)]+self.fw["(ev):[{}]=>(word)[{}]".format(label,w)])
+
+				#print("scores for each label are:{}".format(scores))
 				# find maximum score and its index
 				highest_score = max(scores)
+				#print("the highest of these is",highest_score)
 				index_highest_score = scores.index(highest_score)
+				#print("its index is",index_highest_score)
 				self._vit_matrix[j, i] = highest_score
+				#print("put score {} in row {} and column {}".format(highest_score,j,i))
 				self._backpointer_matrix[j,i] = index_highest_score
+				#print("and put index {} in backpointer matrix".format(index_highest_score))
+
 		# finally, the very last imaginary termination
 		scores = [self._vit_matrix[j, -1] +
 					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END")] for j, label in enumerate(self.labels)]
