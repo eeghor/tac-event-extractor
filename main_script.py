@@ -26,16 +26,18 @@ with open(train_file, "r") as f:
 
 all_events = defaultdict(set)
 
-
+double_labelled = defaultdict(set)
 
 for sent in training_set:
 # 	predicted_labels_training_set.append([])
 	for i, event_labels in enumerate(sent["events"]):
+		if len(event_labels.split(","))>1:
+			double_labelled[event_labels].add(sent["lemmas"][i].lower())
 		for event_label in event_labels.split(","):
 			all_events[event_label].add(sent["words"][i].lower())
 
 all_event_labels = [k for k in all_events.keys()]
-
+print("double labelled stuff",double_labelled)
 # how many words relate each event
 words_per_event = {e: len(all_events[e]) for e in all_events}
 
@@ -64,17 +66,19 @@ for k in fd:
 
 print("collected {} features".format(len(fd)))
 
+print("unique features:{}".format(len(set(fd.keys()))))
+
 Scores([["O","Attack","O","O","O","Business"],["O","Business","O","Business","O","Business"]],
 	[["O","Business","Attack", "O","O","Business"],["O","Attack","Attack", "O","Attack","Business"]]).show()
 
 
-nvi = 8
+nvi = 40
 
 
 start_time = time.time()
 for i in range(nvi):
 	predicted_labels_training_set = []
-	print(predicted_labels_training_set)
+#	print(predicted_labels_training_set)
 	print("starting viterbi run {}...".format(i))
 	for j, sent in enumerate(training_set):
 		#sent_features = defaultdict(int)
@@ -97,9 +101,9 @@ for i in range(nvi):
 					fd[k] -= 1
 				for g in ff:
 					fd[g] += 1
-			else:
-				for k in ff_pr:
-					fd[k] -= 1
+			# else:
+			# 	for k in ff_pr:
+			# 		fd[k] -= 1
 	#print(predicted_labels_training_set)
 	# now get scores 
 	training_labels = [st["events"] for st in training_set]

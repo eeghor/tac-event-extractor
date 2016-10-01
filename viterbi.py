@@ -1,22 +1,20 @@
-from search import SearchAlgorithm
 from collections import defaultdict
 import numpy as np
 
 
-class Viterbi(SearchAlgorithm):
+class Viterbi(object):
 
 	def __init__(self,sentence, possible_labels, features_n_weights):
 		
-		SearchAlgorithm.__init__(self,sentence, possible_labels, features_n_weights)
+		self.sentence = sentence 
+		self.labels = list(possible_labels)
 		self._NW = len(self.sentence["words"])
 		self._NL = len(self.labels)
 		# viterbi matrix to store the highest scores for each label on a word
 		self._vit_matrix = np.zeros(shape=(self._NL,self._NW))
 		self._backpointer_matrix = np.zeros(shape=(self._NL,self._NW)).astype(int)
 		self.paz = []
-		#print(self._backpointer_matrix)
-		#print("viterbi: currently largest weights:", sorted([(k,v) for k,v in self.fw.items()], key=lambda x: x[1], reverse=True)[:10])
-		#print("viterbi: PASSED largest weights:", sorted([(k,v) for k,v in features_n_weights.items()], key=lambda x: x[1], reverse=True)[:10])
+		self.fw = features_n_weights
 
 	def run(self):
 

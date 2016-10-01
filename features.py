@@ -10,7 +10,7 @@ class FeatureFactory(object):
 
 	def __init__(self, sent, word_idx, nomlex_dict=None):  # Nomlex dictionary is optional
 
-		self.sentence = {k: ["START1","START2"] + v +["END1","END2"] for k,v, in sent.items()}   # sentence
+		self.sentence = {k: ["BEFORE_START","START"] + v +["END","AFTER_END"] for k,v, in sent.items()}   # sentence
 		self.word_idx = word_idx  		
 		self.nomlex_dict = nomlex_dict
 
