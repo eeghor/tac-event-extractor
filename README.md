@@ -4,97 +4,51 @@
 ### Tokens with multiple labels
 There is a number of tokens that have multiple labels. Specifically, we have found the following in the training set:
 
-* **I-Justice_Sentence,I-Justice_Sentence**
+* **I-Justice_Sentence,I-Justice_Sentence** sentence
 
- sentence
+* **I-Conflict_Attack,I-Life_Die** slaying, attempt, kill, massacre, death, the, blow, killer, genocide, killing, murder, slaughter, manslaughter 
 
-* **I-Conflict_Attack,I-Life_Die**
+* **I-Contact_Meet,I-Movement_Transport-Person** visit
 
- slaying, attempt, kill, massacre, death, the, blow, killer, genocide, killing, murder, slaughter, manslaughter 
+* **I-Personnel_End-Position,I-Personnel_End-Position** former
 
-* **I-Contact_Meet,I-Movement_Transport-Person**
- 
- visit
+* **I-Contact_Meet,I-Justice_Trial-Hearing** tell, plead, testimony
 
-* **I-Personnel_End-Position,I-Personnel_End-Position**
- 
- former
+* **I-Justice_Execute,I-Life_Die** penalty, execute, lethal, death, punishment, to, put, capital, execution, hang
 
-* I-Contact_Meet,I-Justice_Trial-Hearing
+* **I-Personnel_End-Position,I-Personnel_End-Position,I-Personnel_End-Position** work
 
- tell, plead, testimony
+* **I-Movement_Transport-Artifact,I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership** trafficking, smuggling
 
-* I-Justice_Execute,I-Life_Die 
+* **I-Conflict_Attack,I-Transaction_Transaction** robbery
 
- penalty, execute, lethal, death, punishment, to, put, capital, execution, hang
+* **I-Justice_Execute,I-Justice_Sentence** penalty
 
-* I-Personnel_End-Position,I-Personnel_End-Position,I-Personnel_End-Position
+* **I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership** sale, purchase, run, buyer, buy, donate, sell
 
-  work
+* **I-Contact_Correspondence,I-Transaction_Transfer-Ownership** receive
 
-* I-Movement_Transport-Artifact,I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership
+* **I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership** smuggle, ship, transfer, smuggling, trafficking, pick, receive, smugglee, supply, smuggler
 
-  trafficking, smuggling
+* **I-Transaction_Transfer-Money,I-Transaction_Transfer-Money** pay
 
-* I-Conflict_Attack,I-Transaction_Transaction
+* **I-Conflict_Attack,I-Life_Injure** over, hurt, abuse, attack, knee, assault, run, rape, shot, injure, wound, injured, cap
 
-  robbery
+* **I-Contact_Meet,I-Justice_Arrest-Jail** apprehension
 
-* I-Justice_Execute,I-Justice_Sentence
+* **I-Contact_Broadcast,I-Justice_Trial-Hearing** rule
 
- penalty
+* **I-Conflict_Attack,I-Transaction_Transfer-Ownership** hijacking, seize, rob, robbery, burglary
 
-* I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership
+* **I-Justice_Extradite,I-Movement_Transport-Person** deport, extradition, extradite
 
- sale, purchase, run, buyer, buy, donate, sell
+* **I-Justice_Charge-Indict,I-Justice_Charge-Indict** charge
 
-* I-Contact_Correspondence,I-Transaction_Transfer-Ownership
+* **I-Conflict_Attack,I-Transaction_Transfer-Money** robbery
 
- receive
+* **I-Justice_Fine,I-Transaction_Transfer-Money** fine
 
-* I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership
-
- smuggle, ship, transfer, smuggling, trafficking, pick, receive, smugglee, supply, smuggler
-
-* I-Transaction_Transfer-Money,I-Transaction_Transfer-Money
-
- pay
-
-* I-Conflict_Attack,I-Life_Injure
-
- over, hurt, abuse, attack, knee, assault, run, rape, shot, injure, wound, injured, cap
-
-* I-Contact_Meet,I-Justice_Arrest-Jail
-
-  apprehension
-
-* I-Contact_Broadcast,I-Justice_Trial-Hearing
-
- rule
-
-* I-Conflict_Attack,I-Transaction_Transfer-Ownership
-
- hijacking, seize, rob, robbery, burglary
-
-* I-Justice_Extradite,I-Movement_Transport-Person
-
- deport, extradition, extradite
-
-* I-Justice_Charge-Indict,I-Justice_Charge-Indict
-
- charge
-
-* I-Conflict_Attack,I-Transaction_Transfer-Money
-
- robbery
-
-* I-Justice_Fine,I-Transaction_Transfer-Money
-
- fine
-
-* I-Movement_Transport-Artifact,I-Transaction_Transaction
-
- supply
+* **I-Movement_Transport-Artifact,I-Transaction_Transaction** supply
 
 #### What to do about these labels
 * If we have the same label duplicated like **I-Justice_Sentence,I-Justice_Sentence** we simply aim to label the corresponding token once and consider the predicted label correct if it matches a single instance of the duplicated label
