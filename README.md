@@ -4,19 +4,19 @@
 ### Tokens with multiple labels
 There is a number of tokens that have multiple labels. Specifically, we have found the following in the training set:
 
-* I-Justice_Sentence,I-Justice_Sentence
+* **I-Justice_Sentence,I-Justice_Sentence**
 
  sentence
 
-* I-Conflict_Attack,I-Life_Die
+* **I-Conflict_Attack,I-Life_Die**
 
  slaying, attempt, kill, massacre, death, the, blow, killer, genocide, killing, murder, slaughter, manslaughter 
 
-* I-Contact_Meet,I-Movement_Transport-Person
+* **I-Contact_Meet,I-Movement_Transport-Person**
  
  visit
 
-* I-Personnel_End-Position,I-Personnel_End-Position
+* **I-Personnel_End-Position,I-Personnel_End-Position**
  
  former
 
@@ -28,15 +28,15 @@ There is a number of tokens that have multiple labels. Specifically, we have fou
 
  penalty, execute, lethal, death, punishment, to, put, capital, execution, hang
 
- * I-Personnel_End-Position,I-Personnel_End-Position,I-Personnel_End-Position
+* I-Personnel_End-Position,I-Personnel_End-Position,I-Personnel_End-Position
 
   work
 
- * I-Movement_Transport-Artifact,I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership
+* I-Movement_Transport-Artifact,I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership
 
   trafficking, smuggling
 
- * I-Conflict_Attack,I-Transaction_Transaction
+* I-Conflict_Attack,I-Transaction_Transaction
 
   robbery
 
@@ -64,7 +64,7 @@ There is a number of tokens that have multiple labels. Specifically, we have fou
 
  over, hurt, abuse, attack, knee, assault, run, rape, shot, injure, wound, injured, cap
 
- * I-Contact_Meet,I-Justice_Arrest-Jail
+* I-Contact_Meet,I-Justice_Arrest-Jail
 
   apprehension
 
