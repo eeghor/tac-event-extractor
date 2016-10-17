@@ -69,15 +69,15 @@ class Scores(object):
                             clabs = sent_corr[i].split(",")
                             for e in clabs:
                                 self.score_dict[e]["#"] += 1
-                            plabs = sent_pred[i].split(",")
+                            ep = sent_pred[i]  # .split(",")
 
-                            for ep in plabs:
-                                if ep in clabs:  # this label is among the correct ones
-                                    self.score_dict[ep]["TP"] += 1
-                                else:
-                                    self.score_dict[ep]["FP"] += 1
+                            if ep in clabs:  # this label is among the correct ones
+                                self.score_dict[ep]["TP"] += 1
+                            else:
+                                self.score_dict[ep]["FP"] += 1
+
                             for cl in clabs:
-                                if cl not in plabs:  # some of the correct labels were not predicted
+                                if cl != ep:  # some of the correct labels were not predicted
                                     self.score_dict[cl]["FN"] += 1
 
         # now calculate precision, recall and f-score for each event collected in score_dict

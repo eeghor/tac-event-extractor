@@ -4,54 +4,55 @@
 ### Tokens with multiple labels
 There is a number of tokens that have multiple labels. Specifically, we have found the following in the training set:
 
-* **I-Justice_Sentence,I-Justice_Sentence** sentence
+* **I-Justice\_Sentence,I-Justice\_Sentence** sentence
 
-* **I-Conflict_Attack,I-Life_Die** slaying, attempt, kill, massacre, death, the, blow, killer, genocide, killing, murder, slaughter, manslaughter 
+* **I-Conflict\_Attack,I-Life\_Die** slaying, attempt, kill, massacre, death, the, blow, killer, genocide, killing, murder, slaughter, manslaughter
 
-* **I-Contact_Meet,I-Movement_Transport-Person** visit
+* **I-Contact\_Meet,I-Movement\_Transport-Person** visit
 
-* **I-Personnel_End-Position,I-Personnel_End-Position** former
+* **I-Personnel\_End-Position,I-Personnel\_End-Position** former
 
-* **I-Contact_Meet,I-Justice_Trial-Hearing** tell, plead, testimony
+* **I-Contact\_Meet,I-Justice\_Trial-Hearing** tell, plead, testimony
 
-* **I-Justice_Execute,I-Life_Die** penalty, execute, lethal, death, punishment, to, put, capital, execution, hang
+* **I-Justice\_Execute,I-Life\_Die** penalty, execute, lethal, death, punishment, to, put, capital, execution, hang
 
-* **I-Personnel_End-Position,I-Personnel_End-Position,I-Personnel_End-Position** work
+* **I-Personnel\_End-Position,I-Personnel\_End-Position,I-Personnel\_End-Position** work
 
-* **I-Movement_Transport-Artifact,I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership** trafficking, smuggling
+* **I-Movement\_Transport-Artifact,I-Transaction\_Transfer-Money,I-Transaction\_Transfer-Ownership** trafficking, smuggling
 
-* **I-Conflict_Attack,I-Transaction_Transaction** robbery
+* **I-Conflict\_Attack,I-Transaction\_Transaction** robbery
 
-* **I-Justice_Execute,I-Justice_Sentence** penalty
+* **I-Justice\_Execute,I-Justice\_Sentence** penalty
 
-* **I-Transaction_Transfer-Money,I-Transaction_Transfer-Ownership** sale, purchase, run, buyer, buy, donate, sell
+* **I-Transaction\_Transfer-Money,I-Transaction\_Transfer-Ownership** sale, purchase, run, buyer, buy, donate, sell
 
-* **I-Contact_Correspondence,I-Transaction_Transfer-Ownership** receive
+* **I-Contact\_Correspondence,I-Transaction\_Transfer-Ownership** receive
 
-* **I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership** smuggle, ship, transfer, smuggling, trafficking, pick, receive, smugglee, supply, smuggler
+* **I-Movement\_Transport-Artifact,I-Transaction\_Transfer-Ownership** smuggle, ship, transfer, smuggling, trafficking, pick, receive, smugglee, supply, smuggler
 
-* **I-Transaction_Transfer-Money,I-Transaction_Transfer-Money** pay
+* **I-Transaction\_Transfer-Money,I-Transaction\_Transfer-Money** pay
 
-* **I-Conflict_Attack,I-Life_Injure** over, hurt, abuse, attack, knee, assault, run, rape, shot, injure, wound, injured, cap
+* **I-Conflict\_Attack,I-Life\_Injure** over, hurt, abuse, attack, knee, assault, run, rape, shot, injure, wound, injured, cap
 
-* **I-Contact_Meet,I-Justice_Arrest-Jail** apprehension
+* **I-Contact\_Meet,I-Justice\_Arrest-Jail** apprehension
 
-* **I-Contact_Broadcast,I-Justice_Trial-Hearing** rule
+* **I-Contact\_Broadcast,I-Justice\_Trial-Hearing** rule
 
-* **I-Conflict_Attack,I-Transaction_Transfer-Ownership** hijacking, seize, rob, robbery, burglary
+* **I-Conflict\_Attack,I-Transaction\_Transfer-Ownership** hijacking, seize, rob, robbery, burglary
 
-* **I-Justice_Extradite,I-Movement_Transport-Person** deport, extradition, extradite
+* **I-Justice\_Extradite,I-Movement\_Transport-Person** deport, extradition, extradite
 
-* **I-Justice_Charge-Indict,I-Justice_Charge-Indict** charge
+* **I-Justice\_Charge-Indict,I-Justice\_Charge-Indict** charge
 
-* **I-Conflict_Attack,I-Transaction_Transfer-Money** robbery
+* **I-Conflict\_Attack,I-Transaction\_Transfer-Money** robbery
 
-* **I-Justice_Fine,I-Transaction_Transfer-Money** fine
+* **I-Justice\_Fine,I-Transaction\_Transfer-Money** fine
 
-* **I-Movement_Transport-Artifact,I-Transaction_Transaction** supply
+* **I-Movement\_Transport-Artifact,I-Transaction\_Transaction** supply
 
 #### What to do about these labels
-* If we have the same label duplicated like **I-Justice_Sentence,I-Justice_Sentence** we simply aim to label the corresponding token once and consider the predicted label correct if it matches a single instance of the duplicated label
+* If we have the same label duplicated like **I-Justice\_Sentence,I-Justice\_Sentence** we simply aim to label the corresponding token once and consider the predicted label correct if it matches a single instance of the duplicated label
+* We consider the relatively widespread multiple labels as separate labels. Specifically, **I-Justice\_Execute,I-Life\_Die** means something like *killed according to justice*. Then **I-Conflict\_Attack,I-Transaction\_Transfer-Ownership** means *assault that involves taking someone’s property*. Also, **I-Conflict\_Attack,I-Life\_Die** is clearly *violent death* and **I-Conflict\_Attack,I-Life\_Injure** is *assault that results in injusries*.
 
 
 ## Training and testing data

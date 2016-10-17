@@ -6,7 +6,6 @@ from features import FeatureFactory
 from collections import defaultdict
 from viterbi import Viterbi
 import time
-#import pdb
 from scorer import Scores
 import copy
 
@@ -36,13 +35,19 @@ for sent in training_set:
 		for event_label in event_labels.split(","):
 			all_events[event_label].add(sent["words"][i].lower())
 
-all_event_labels = [k for k in all_events.keys()]
-print("double labelled stuff",double_labelled)
+all_event_labels = [k for k in all_events.keys()] + ["I-Justice_Execute,I-Life_Die",
+						 "I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership",
+						 "I-Conflict_Attack,I-Life_Injure",
+						 "I-Conflict_Attack,I-Transaction_Transfer-Ownership"]
+
+print(all_event_labels)
+print("found {} variations of multiple labels on the same word".format(len(double_labelled)))
+
 # how many words relate each event
 words_per_event = {e: len(all_events[e]) for e in all_events}
 
 #print(words_per_event)
-
+extras_ev = "up over off on down out in".split()
 #all_event_labels = {event_label  for sent in training_set for event_labels in sent["events"] for event_label in event_labels.split(",")}
 
 NUM_EVENT_LABELS = len(all_event_labels)
@@ -72,7 +77,7 @@ Scores([["O","Attack","O","O","O","Business"],["O","Business","O","Business","O"
 	[["O","Business","Attack", "O","O","Business"],["O","Attack","Attack", "O","Attack","Business"]]).show()
 
 
-nvi = 40
+nvi = 50
 
 
 start_time = time.time()
