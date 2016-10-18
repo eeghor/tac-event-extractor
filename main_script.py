@@ -33,12 +33,14 @@ for sent in training_set:
 		if len(event_labels.split(","))>1:
 			double_labelled[event_labels].add(sent["lemmas"][i].lower())
 		for event_label in event_labels.split(","):
-			all_events[event_label].add(sent["words"][i].lower())
+			all_events[event_label].add(sent["lemmas"][i].lower())
 
 all_event_labels = [k for k in all_events.keys()] + ["I-Justice_Execute,I-Life_Die",
 						 "I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership",
 						 "I-Conflict_Attack,I-Life_Injure",
 						 "I-Conflict_Attack,I-Transaction_Transfer-Ownership"]
+
+print(all_events)
 
 print(all_event_labels)
 print("found {} variations of multiple labels on the same word".format(len(double_labelled)))
