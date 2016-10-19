@@ -47,7 +47,18 @@ class SPerceptron(object):
 		self.fweights = defaultdict(int)
 
 		self.rename_events()
-		#print(self.training_set)
+
+		# make set of all events, e.g. {"attack": {"fire","kill"}, "transfer": {"deposit"}, ...}
+		self.events_and_lemmas = defaultdict(set)
+
+		self.event_names = self.events_and_lemmas.keys()
+
+		print("we have {} events in this dataset".format(len(self.event_names)))
+
+		for sent in self.training_set:
+			for i, event_label in enumerate(sent["events"]):
+				self.events_and_lemmas[event_label].add(sent["lemmas"][i].lower())
+
 	
 	def rename_events(self):
 	
@@ -96,11 +107,8 @@ class SPerceptron(object):
 			"I-Life_Die": "die"}
 	
 		for sent in self.training_set:
-			# 	predicted_labels_training_set.append([])
 				for i, event_label in enumerate(sent["events"]):
 					if event_label in evmaps:
-						if event_label == "I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership":
-							print("found multilabel:",event_label)
 						sent["events"][i] = evmaps[event_label]
 					else:
 						sent["events"][i] = "O"
@@ -173,6 +181,7 @@ class SPerceptron(object):
 	
 
 sp = SPerceptron()
+print(sp.event_names)
 	# upload the training dataset; it's a list of dicts, [{"words":[], "events":[]},...]
 	#with open(train_file, "r") as f:
 	#	training_set = json.load(f)
