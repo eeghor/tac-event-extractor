@@ -69,10 +69,13 @@ class FeatureFactory(object):
 		# word length
 		if len(self.sentence["words"][i]) < 3:
 			self.add("(very_short_word)", 1)
+		# hyphen
+		if "-" in self.sentence["words"][i]:
+			self.add("hyphen",1)
 
 		return self.feature_dict
 
 
-s = FeatureFactory({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
-"entities":["dynamo", "floated", "in", "the", "sea."], "events":["O", "swim", "O", "O", "O"],"POSs":["N", "fB", "V", "E", "P"]},0)
-print(s.extract())
+# s = FeatureFactory({"words":["dynamo", "floated", "in", "the", "sea."], "lemmas":["dynamo", "floated", "in", "the", "sea."],
+# "entities":["dynamo", "floated", "in", "the", "sea."], "events":["O", "swim", "O", "O", "O"],"POSs":["N", "fB", "V", "E", "P"]},0)
+# print(s.extract())

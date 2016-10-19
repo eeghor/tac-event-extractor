@@ -1,6 +1,9 @@
 # Event extraction using the Structured Perceptron algorithm
 
 ## Preprocessing
+### Non-alphanumeric tokens
+* All tokens that contain not only letters but also something else or no letters at all will be labelled as **non-events** in case they have never been labelled as events in the training set
+* Numbers will always be **non-events** although someone did label some numbers as events in the training set
 ### Tokens with multiple labels
 There is a number of tokens that have multiple labels. Specifically, we have found the following in the training set:
 

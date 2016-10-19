@@ -9,9 +9,10 @@ import time
 from scorer import Scores
 import copy
 
-#pdb.set_trace()
-
-current_dir = os.path.dirname(os.path.realpath('__file__'))
+# __file__ is the pathname of the file from which the module was loaded, if it was loaded from a file
+# Return the canonical path of the specified filename, eliminating any symbolic links encountered in the path
+# return the directory name of pathname path
+current_dir = os.path.dirname(os.path.realpath('__file__'))  
 
 train_file = sys.argv[1]  # training dataset
 nomlex_file = "nomlex_dict.json"
@@ -19,6 +20,51 @@ nomlex_file = "nomlex_dict.json"
 # upload the training dataset; it's a list of dicts, [{"words":[], "events":[]},...]
 with open(train_file, "r") as f:
 	training_set = json.load(f)
+
+# change event names
+evmaps = {
+"I-Justice_Sue": "sue", 
+"I-Life_Injure": "injure",  
+"I-Contact_Contact": "contact",
+"I-Conflict_Attack": "attack",
+"I-Personnel_Start-Position": "start_position", 
+"I-Transaction_Transfer-Ownership": "change_ownership",
+"I-Justice_Charge-Indict": "charge",
+"I-Justice_Appeal": "appeal",  
+"I-Justice_Convict": "convict",
+"I-Justice_Arrest-Jail": "arrest",
+"I-Personnel_Nominate": "nominate",
+"I-Transaction_Transaction": "transaction",
+"I-Movement_Transport-Artifact,I-Transaction_Transfer-Ownership": "deliver_for_someone", 
+"I-Justice_Release-Parole": "parole", 
+"I-Contact_Broadcast": "broadcast",  
+"I-Transaction_Transfer-Money": "transfer_money",
+"I-Justice_Acquit": "free_from_charge",
+"I-Life_Divorce": "divorce", 
+"I-Justice_Extradite": "extradict", 
+"I-Justice_Trial-Hearing": "trial",
+"I-Business_Merge-Org": "merger", 
+"I-Justice_Execute": "execute",
+"I-Personnel_End-Position": "end_position",
+"I-Justice_Execute,I-Life_Die", "lethal_execution",  
+"I-Business_Declare-Bankruptcy", "bancrupcy", 
+"I-Conflict_Attack,I-Life_Injure": "attack_resulting_in_injury", 
+"I-Life_Be-Born": "beborn",   
+"I-Contact_Meet": "meet",
+"I-Conflict_Demonstrate": "protest",
+"I-Justice_Sentence": "sentence",  
+"I-Business_End-Org": "liquidation",
+"I-Justice_Fine": "fine", 
+"I-Contact_Correspondence": "correspondence",  
+"I-Personnel_Elect": "elect", 
+"I-Life_Marry": "marry", 
+"I-Manufacture_Artifact": "produce_something",   
+"I-Business_Start-Org": "new_business",  
+"I-Justice_Pardon": "pardon", 
+"I-Movement_Transport-Artifact": "transport_something",
+"I-Movement_Transport-Person": "transport_people",  
+"I-Conflict_Attack,I-Transaction_Transfer-Ownership": "violent_robbery"  
+"I-Life_Die": "die"}    
 
 # let's find out what and how many event labels are there; 
 # note that some words can have a few labels on them, separated by a coma

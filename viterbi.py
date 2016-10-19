@@ -63,12 +63,12 @@ class Viterbi(object):
 
 		return self.paz
 
-## test if the algorighm works
-from collections import defaultdict
+# ## test if the algorighm works
+# from collections import defaultdict
 
-f = defaultdict(int, {"(ev-1):[O]->(ev)[O]": 1, "(ev-1):[Jump]->(ev)[O]": 2, "(ev-1):[O]->(ev)[Jump]": 3})
-pz = Viterbi({"words":["Fly","is","jumping","."], "events":["O","O","Jump","O"]}, ["Jump","Sit","O"],f).run()
-print(pz)
+# f = defaultdict(int, {"(ev-1):[O]->(ev)[O]": 1, "(ev-1):[Jump]->(ev)[O]": 2, "(ev-1):[O]->(ev)[Jump]": 3})
+# pz = Viterbi({"words":["Fly","is","jumping","."], "events":["O","O","Jump","O"]}, ["Jump","Sit","O"],f).run()
+# print(pz)
 
 
 
