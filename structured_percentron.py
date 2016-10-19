@@ -5,6 +5,7 @@ import pandas as pd
 import os  # pathname manipulations
 #from features import FeatureFactory
 from collections import defaultdict
+from nltk.corpus import wordnet
 from viterbi import Viterbi
 import time
 #from scorer import Scores
@@ -39,25 +40,36 @@ class SPerceptron(object):
 		
 		w2v_start_time = time.time()
 		self.word2vec_file = self.current_dir+"/word2vec_pretrained/"+"GoogleNews-vectors-negative300.bin"	
-		w2v_model = gensim.models.Word2Vec.load_word2vec_format(self.word2vec_file, binary=True)
+		self.w2v_model = gensim.models.Word2Vec.load_word2vec_format(self.word2vec_file, binary=True)
 		w2v_end_time = time.time()
 		print("loaded pretrained Word2Vec model... elapsed time {} seconds".format(round(w2v_end_time - w2v_start_time),1))	
 
 		# feature dictionary
-		self.fweights = defaultdict(int)
+		# self.fweights = defaultdict(int)
 
 		self.rename_events()
 
 		# make set of all events, e.g. {"attack": {"fire","kill"}, "transfer": {"deposit"}, ...}
 		self.events_and_lemmas = defaultdict(set)
 
-		self.event_names = self.events_and_lemmas.keys()
-
-		print("we have {} events in this dataset".format(len(self.event_names)))
-
 		for sent in self.training_set:
 			for i, event_label in enumerate(sent["events"]):
 				self.events_and_lemmas[event_label].add(sent["lemmas"][i].lower())
+
+		self.event_names = self.events_and_lemmas.keys()
+		print("we have {} events in this dataset (incl. non-event)".format(len(self.event_names)))
+
+		# create features
+		self.feature_names = set()
+
+		for sent in self.training_set:
+			for i, w in enumerate(sent["lemmas"]):
+				self.feature_names |= set(self.create_features(sent, i, "train").keys())
+		self.fweights = dict.fromkeys(self.feature_names, 0)
+
+		self.nfeatures = len(self.fweights)
+		print("obtained {} features".format(self.nfeatures))
+
 
 	
 	def rename_events(self):
@@ -172,10 +184,12 @@ class SPerceptron(object):
 		# Word2Vec features
 		if tt_flag == "train":
 			# only generate w2v features for the words that are labelled as events
-			if sentence["events"][i] != "O":
+			if sentence["events"][i] != "O" and sentence["lemmas"][i].isalnum():
 				# take topn most similar words
-				for word, simil in model.most_similar(positive=[sentence["lemmas"][i]], negative=[],topn=16):
-					feature_dict["(w2v) simto {}".format(word)] += 1
+				if sentence["lemmas"][i] in self.w2v_model.vocab:
+
+					for word, simil in self.w2v_model.most_similar(positive=[sentence["lemmas"][i]], negative=[],topn=16):
+						feature_dict["(w2v) simto {}".format(word)] += 1
 	
 		return feature_dict
 	
