@@ -56,11 +56,13 @@ class SPerceptron(object):
 			for i, event_label in enumerate(sent["events"]):
 				self.events_and_lemmas[event_label].add(sent["lemmas"][i].lower())
 
-		self.event_names = self.events_and_lemmas.keys()
+		self.event_names = set(self.events_and_lemmas.keys())
 		print("we have {} events in this dataset (incl. non-event)".format(len(self.event_names)))
 
 		# create features
 		self.feature_names = set()
+
+		fet_start_time = time.time()
 
 		for sent in self.training_set:
 			for i, w in enumerate(sent["lemmas"]):
@@ -68,7 +70,10 @@ class SPerceptron(object):
 		self.fweights = dict.fromkeys(self.feature_names, 0)
 
 		self.nfeatures = len(self.fweights)
-		print("obtained {} features".format(self.nfeatures))
+
+		fet_end_time = time.time()
+
+		print("obtained {} features. elapsed time {} minutes".format(self.nfeatures, round((fet_end_time-fet_start_time)/60, 1)))
 
 
 	
@@ -192,6 +197,41 @@ class SPerceptron(object):
 						feature_dict["(w2v) simto {}".format(word)] += 1
 	
 		return feature_dict
+
+	def predict(self):
+
+		nvi = 50
+
+		for i in range(nvi):
+
+			predicted_labels_training_set = []
+
+			print("starting viterbi run {}...".format(i))
+
+			for j, sent in enumerate(self.training_set):
+
+				predicted_labels_training_set.append(Viterbi(sent, self.event_names, self.fweights).run())
+
+				tmp_sent = copy.deepcopy(sent)
+				tmp_sent["events"] = predicted_labels_training_set[j]
+
+				for i,w in enumerate(sent["words"]):
+					# extract features from each word from the correcly labelled sentence..
+					ff = create_features(sent, i, "train")
+					# and the labelling by Viterbi
+					ff_pr = create_features(tmp_sent, i, "train")
+
+					if sent["events"][i] != tmp_sent["events"][i]:
+
+						for k in ff_pr:
+							fd[k] -= 1
+						for g in ff:
+							fd[g] += 1
+
+			# now get scores for this Viterbi iteration
+			training_labels = [st["events"] for st in self.training_set]
+			# print("have {} training sentences and {} predicted ones".format(len(training_labels), len(predicted_labels_training_set)))
+			Scores(training_labels, predicted_labels_training_set).show()
 	
 
 sp = SPerceptron()
