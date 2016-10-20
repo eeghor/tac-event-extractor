@@ -41,7 +41,7 @@ class FeatureFactory(object):
 		self.add("(ev):[{}]->(ev+1)[{}]".format(self.sentence["events"][i], self.sentence["events"][__nidx]), 1)
 
 		# emission features: in HMM, likelihood that hidden event i generated the observed word i
-		self.add("(ev):[{}]=>(word)[{}]".format(self.sentence["events"][i],self.sentence["words"][i]), 1)
+		self.add("(ev):[{}]=>(lemma)[{}]".format(self.sentence["events"][i],self.sentence["lemmas"][i]), 1)
 
 		# lemma synonyms and hypernyms from WordNet
 		if wordnet.synsets(self.sentence["lemmas"][i]):

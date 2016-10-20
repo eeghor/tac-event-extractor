@@ -21,9 +21,12 @@ class SPerceptron(object):
 		# __file__ is the pathname of the file from which the module was loaded; realpath returns canonical path of this pathname
 		#  eliminating any symbolic links encountered in the path; dirname returns the directory name of pathname
 		# 
-		self.current_dir = os.path.dirname(os.path.realpath('__file__')) 
-
+		self.current_dir = os.path.dirname(os.path.realpath('__file__'))
+		self.feature_file = "features_init.json"
+		self.feature_file_path = self.current_dir+"/saved_features/"+self.feature_file
 		self.train_file = sys.argv[1]  # training dataset
+		self.load_features_flag = sys.argv[2]
+
 		# upload the training dataset; it's a list of dicts, [{"words":[], "events":[]},...]
 		with open(self.	train_file, "r") as f:
 			self.training_set = json.load(f)
@@ -59,22 +62,46 @@ class SPerceptron(object):
 		self.event_names = set(self.events_and_lemmas.keys())
 		print("we have {} events in this dataset (incl. non-event)".format(len(self.event_names)))
 
-		# create features
+		# extract or load features
+
+		assert self.load_features_flag in ["load_features","extract_features"], "you must provide flag load_features or extract_features in command line!"
+
 		self.feature_names = set()
 
-		fet_start_time = time.time()
 
-		for sent in self.training_set:
-			for i, w in enumerate(sent["lemmas"]):
-				self.feature_names |= set(self.create_features(sent, i, "train").keys())
-		self.fweights = dict.fromkeys(self.feature_names, 0)
+		if self.load_features_flag == "load_features":
+			
+			if os.path.exists(self.feature_file_path):
+				with open(self.feature_file_path, "r") as f:
+					self.fweights = json.load(f)
+				print("loaded features from file {}".format(self.feature_file))
+		elif self.load_features_flag == "extract_features":
+		
+			fet_start_time = time.time()
+			if not os.path.exists(self.feature_file_path):
+				os.makedirs(self.current_dir+"/saved_features/")
+			else:
+				os.remove(self.feature_file_path)
+				print("deleted previous feature file...")
+		
+			for sent in self.training_set:
+		
+				for i, w in enumerate(sent["lemmas"]):
+		
+					self.feature_names |= set(self.create_features(sent, i, "train").keys())
+		
+			self.fweights = dict.fromkeys(self.feature_names, 0)
 
+			
+
+			with open(self.feature_file_path,"w+") as f:
+				json.dump(self.fweights, f)
+			
+			fet_end_time = time.time()
+			print("done extracting features from training set. elapsed time {} minutes".format(round((fet_end_time-fet_start_time)/60, 1)))
+		
 		self.nfeatures = len(self.fweights)
-
-		fet_end_time = time.time()
-
-		print("obtained {} features. elapsed time {} minutes".format(self.nfeatures, round((fet_end_time-fet_start_time)/60, 1)))
-
+		print("have {} features in total".format(self.nfeatures))
 
 	
 	def rename_events(self):
@@ -140,22 +167,22 @@ class SPerceptron(object):
 		feature_dict = defaultdict(int)
 	
 		# transition features involving lemmas, POS and events
-		feature_dict["(lem-1):[{}]->(lem)[{}]".format(sentence["lemmas"][_pidx],sentence["lemmas"][i])] += 1
-		feature_dict["(lem-2):[{}]->(lem-1)[{}]->(lem)[{}]".format(sentence["lemmas"][i-2], sentence["lemmas"][_pidx], sentence["lemmas"][i])] += 1
-		feature_dict["(pos-2):[{}]->(pos-1)[{}]->(pos)[{}]".format(sentence["POSs"][i-2], sentence["POSs"][_pidx], sentence["POSs"][i])] += 1
-		feature_dict["(pos-1):[{}]->(pos)[{}]".format(sentence["POSs"][_pidx], sentence["POSs"][i])] += 1
-		feature_dict["(ent-1):[{}]->(ent)[{}]".format(sentence["entities"][_pidx],sentence["entities"][i])] += 1
+		feature_dict["(lem-1):[{}]->(lem)[{}]".format(sentence["lemmas"][_pidx].lower(),sentence["lemmas"][i].lower())] += 1
+		feature_dict["(lem-2):[{}]->(lem-1)[{}]->(lem)[{}]".format(sentence["lemmas"][i-2].lower(), sentence["lemmas"][_pidx].lower(), sentence["lemmas"][i])] += 1
+		feature_dict["(pos-2):[{}]->(pos-1)[{}]->(pos)[{}]".format(sentence["POSs"][i-2].lower(), sentence["POSs"][_pidx].lower(), sentence["POSs"][i])] += 1
+		feature_dict["(pos-1):[{}]->(pos)[{}]".format(sentence["POSs"][_pidx].lower(), sentence["POSs"][i].lower())] += 1
+		feature_dict["(ent-1):[{}]->(ent)[{}]".format(sentence["entities"][_pidx].lower(),sentence["entities"][i].lower())] += 1
 		feature_dict["(ev-1):[{}]->(ev)[{}]".format(sentence["events"][_pidx],sentence["events"][i])] += 1
-		feature_dict["(lem):[{}]->(lem+1)[{}]".format(sentence["lemmas"][i], sentence["lemmas"][_nidx])] += 1
-		feature_dict["(pos):[{}]->(pos+1)[{}]".format(sentence["POSs"][i], sentence["POSs"][_nidx])] += 1
-		feature_dict["(ent):[{}]->(ent+1)[{}]".format(sentence["entities"][i], sentence["entities"][_nidx])] += 1
+		feature_dict["(lem):[{}]->(lem+1)[{}]".format(sentence["lemmas"][i].lower(), sentence["lemmas"][_nidx].lower())] += 1
+		feature_dict["(pos):[{}]->(pos+1)[{}]".format(sentence["POSs"][i].lower(), sentence["POSs"][_nidx].lower())] += 1
+		feature_dict["(ent):[{}]->(ent+1)[{}]".format(sentence["entities"][i].lower(), sentence["entities"][_nidx].lower())] += 1
 		feature_dict["(ev):[{}]->(ev+1)[{}]".format(sentence["events"][i], sentence["events"][_nidx])] += 1
 	
 		# emission features: in HMM, likelihood that hidden event i generated the observed lemma i
-		feature_dict["(ev):[{}]=>(lem)[{}]".format(sentence["events"][i],sentence["lemmas"][i])] += 1
+		feature_dict["(ev):[{}]=>(lem)[{}]".format(sentence["events"][i].lower(),sentence["lemmas"][i].lower())] += 1
 	
 		# lemma synonyms and hypernyms from WordNet
-		if wordnet.synsets(sentence["lemmas"][i]):
+		if wordnet.synsets(sentence["lemmas"][i].lower()):
 		    for w in wordnet.synsets(sentence["lemmas"][i].lower()):
 		        for ln in w.lemma_names():
 		            feature_dict["(syn):[{}]".format(ln)] += 1
@@ -171,7 +198,7 @@ class SPerceptron(object):
 		if ~sentence["words"][i].isalnum():
 			feature_dict["(not_alphanumeric)"] += 1
 		# lemma
-		feature_dict["(lemma)[{}]".format(sentence["lemmas"][i])] += 1
+		feature_dict["(lemma)[{}]".format(sentence["lemmas"][i].lower())] += 1
 		
 		# entity
 		feature_dict["(entity)[{}]".format(sentence["entities"][i])] += 1
@@ -191,9 +218,9 @@ class SPerceptron(object):
 			# only generate w2v features for the words that are labelled as events
 			if sentence["events"][i] != "O" and sentence["lemmas"][i].isalnum():
 				# take topn most similar words
-				if sentence["lemmas"][i] in self.w2v_model.vocab:
+				if sentence["lemmas"][i].lower() in self.w2v_model.vocab:
 
-					for word, simil in self.w2v_model.most_similar(positive=[sentence["lemmas"][i]], negative=[],topn=16):
+					for word, simil in self.w2v_model.most_similar(positive=[sentence["lemmas"][i].lower()], negative=[],topn=16):
 						feature_dict["(w2v) simto {}".format(word)] += 1
 	
 		return feature_dict
@@ -235,7 +262,8 @@ class SPerceptron(object):
 	
 
 sp = SPerceptron()
-print(sp.event_names)
+sp.predict()
+
 	# upload the training dataset; it's a list of dicts, [{"words":[], "events":[]},...]
 	#with open(train_file, "r") as f:
 	#	training_set = json.load(f)

@@ -22,18 +22,18 @@ class Viterbi(object):
 		for j, label in enumerate(self.labels):
 
 			self._vit_matrix[j, 0] = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",label)]+\
-										self.fw["(ev):[{}]=>(word)[{}]".format(label,self.sentence["words"][0])]
+										self.fw["(ev):[{}]=>(lemma)[{}]".format(label,self.sentence["lemmas"][0].lower())]
 			self._backpointer_matrix[j, 0] = -1
 
 		# for all other columns, i.e. from second word to the last word
-		for i, w in enumerate(self.sentence["words"][1:],1):
+		for i, w in enumerate(self.sentence["lemmas"][1:],1):
 			for j, label in enumerate(self.labels):
 				# introduce a temporary storage for scores: a list [(scores if coming from l1), (scores if coming from l2),...]
 				scores = []
 				# suppose label has been placed on word; then run through all the labels and calculate scores
 				for l, lb in enumerate(self.labels):
 					scores.append(self._vit_matrix[l, i-1] +\
-						self.fw["(ev-1):[{}]->(ev)[{}]".format(lb,label)]+self.fw["(ev):[{}]=>(word)[{}]".format(label,w)])
+						self.fw["(ev-1):[{}]->(ev)[{}]".format(lb,label)]+self.fw["(ev):[{}]=>(lemma)[{}]".format(label,w.lower())])
 
 				#print("scores for each label are:{}".format(scores))
 				# find maximum score and its index
