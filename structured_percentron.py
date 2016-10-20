@@ -8,7 +8,7 @@ from collections import defaultdict
 from nltk.corpus import wordnet
 from viterbi import Viterbi
 import time
-#from scorer import Scores
+from scorer import Scores
 import copy
 
 class SPerceptron(object):
@@ -23,7 +23,9 @@ class SPerceptron(object):
 		# 
 		self.current_dir = os.path.dirname(os.path.realpath('__file__'))
 		self.feature_file = "features_init.json"
+		self.feature_trained = "features_trained.json"
 		self.feature_file_path = self.current_dir+"/saved_features/"+self.feature_file
+		self.feature_trained_file_path = self.current_dir+"/saved_features/"+self.feature_trained
 		self.train_file = sys.argv[1]  # training dataset
 		self.load_features_flag = sys.argv[2]
 
@@ -168,18 +170,18 @@ class SPerceptron(object):
 	
 		# transition features involving lemmas, POS and events
 		feature_dict["(lem-1):[{}]->(lem)[{}]".format(sentence["lemmas"][_pidx].lower(),sentence["lemmas"][i].lower())] += 1
-		feature_dict["(lem-2):[{}]->(lem-1)[{}]->(lem)[{}]".format(sentence["lemmas"][i-2].lower(), sentence["lemmas"][_pidx].lower(), sentence["lemmas"][i])] += 1
-		feature_dict["(pos-2):[{}]->(pos-1)[{}]->(pos)[{}]".format(sentence["POSs"][i-2].lower(), sentence["POSs"][_pidx].lower(), sentence["POSs"][i])] += 1
-		feature_dict["(pos-1):[{}]->(pos)[{}]".format(sentence["POSs"][_pidx].lower(), sentence["POSs"][i].lower())] += 1
-		feature_dict["(ent-1):[{}]->(ent)[{}]".format(sentence["entities"][_pidx].lower(),sentence["entities"][i].lower())] += 1
+		feature_dict["(lem-2):[{}]->(lem-1)[{}]->(lem)[{}]".format(sentence["lemmas"][i-2].lower(), sentence["lemmas"][_pidx].lower(), sentence["lemmas"][i].lower())] += 1
+		feature_dict["(pos-2):[{}]->(pos-1)[{}]->(pos)[{}]".format(sentence["POSs"][i-2], sentence["POSs"][_pidx], sentence["POSs"][i])] += 1
+		feature_dict["(pos-1):[{}]->(pos)[{}]".format(sentence["POSs"][_pidx], sentence["POSs"][i])] += 1
+		feature_dict["(ent-1):[{}]->(ent)[{}]".format(sentence["entities"][_pidx],sentence["entities"][i])] += 1
 		feature_dict["(ev-1):[{}]->(ev)[{}]".format(sentence["events"][_pidx],sentence["events"][i])] += 1
 		feature_dict["(lem):[{}]->(lem+1)[{}]".format(sentence["lemmas"][i].lower(), sentence["lemmas"][_nidx].lower())] += 1
-		feature_dict["(pos):[{}]->(pos+1)[{}]".format(sentence["POSs"][i].lower(), sentence["POSs"][_nidx].lower())] += 1
-		feature_dict["(ent):[{}]->(ent+1)[{}]".format(sentence["entities"][i].lower(), sentence["entities"][_nidx].lower())] += 1
+		feature_dict["(pos):[{}]->(pos+1)[{}]".format(sentence["POSs"][i], sentence["POSs"][_nidx])] += 1
+		feature_dict["(ent):[{}]->(ent+1)[{}]".format(sentence["entities"][i], sentence["entities"][_nidx])] += 1
 		feature_dict["(ev):[{}]->(ev+1)[{}]".format(sentence["events"][i], sentence["events"][_nidx])] += 1
 	
 		# emission features: in HMM, likelihood that hidden event i generated the observed lemma i
-		feature_dict["(ev):[{}]=>(lem)[{}]".format(sentence["events"][i].lower(),sentence["lemmas"][i].lower())] += 1
+		feature_dict["(ev):[{}]=>(lem)[{}]".format(sentence["events"][i],sentence["lemmas"][i].lower())] += 1
 	
 		# lemma synonyms and hypernyms from WordNet
 		if wordnet.synsets(sentence["lemmas"][i].lower()):
@@ -227,7 +229,7 @@ class SPerceptron(object):
 
 	def predict(self):
 
-		nvi = 50
+		nvi = 12
 
 		for i in range(nvi):
 
@@ -244,21 +246,26 @@ class SPerceptron(object):
 
 				for i,w in enumerate(sent["words"]):
 					# extract features from each word from the correcly labelled sentence..
-					ff = create_features(sent, i, "train")
+					ff = self.create_features(sent, i, "train")
 					# and the labelling by Viterbi
-					ff_pr = create_features(tmp_sent, i, "train")
+					ff_pr = self.create_features(tmp_sent, i, "train")
 
 					if sent["events"][i] != tmp_sent["events"][i]:
 
 						for k in ff_pr:
-							fd[k] -= 1
+							if k in self.fweights:
+								self.fweights[k] -= 1
 						for g in ff:
-							fd[g] += 1
+							if g in self.fweights:
+								self.fweights[g] += 1
 
 			# now get scores for this Viterbi iteration
 			training_labels = [st["events"] for st in self.training_set]
 			# print("have {} training sentences and {} predicted ones".format(len(training_labels), len(predicted_labels_training_set)))
 			Scores(training_labels, predicted_labels_training_set).show()
+
+			with open(self.feature_trained_file_path, "w+") as f:
+				json.dump(self.fweights, f)
 	
 
 sp = SPerceptron()

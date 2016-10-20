@@ -21,8 +21,16 @@ class Viterbi(object):
 		# fill in the 1st column
 		for j, label in enumerate(self.labels):
 
-			self._vit_matrix[j, 0] = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",label)]+\
-										self.fw["(ev):[{}]=>(lemma)[{}]".format(label,self.sentence["lemmas"][0].lower())]
+			if "(ev-1):[{}]->(ev)[{}]".format("START",label) in self.fw:
+				d1 = self.fw["(ev-1):[{}]->(ev)[{}]".format("START",label)]
+			else:
+				d1 = 0
+			if "(ev):[{}]=>(lem)[{}]".format(label,self.sentence["lemmas"][0].lower()) in self.fw:
+				d2 = self.fw["(ev):[{}]=>(lem)[{}]".format(label,self.sentence["lemmas"][0].lower())]
+			else:
+				d2 = 0
+
+			self._vit_matrix[j, 0] = d1 + d2
 			self._backpointer_matrix[j, 0] = -1
 
 		# for all other columns, i.e. from second word to the last word
@@ -32,8 +40,18 @@ class Viterbi(object):
 				scores = []
 				# suppose label has been placed on word; then run through all the labels and calculate scores
 				for l, lb in enumerate(self.labels):
-					scores.append(self._vit_matrix[l, i-1] +\
-						self.fw["(ev-1):[{}]->(ev)[{}]".format(lb,label)]+self.fw["(ev):[{}]=>(lemma)[{}]".format(label,w.lower())])
+
+					if "(ev-1):[{}]->(ev)[{}]".format(lb,label) in self.fw:
+						d1 = self.fw["(ev-1):[{}]->(ev)[{}]".format(lb,label)]
+					else:
+						d1 = 0
+
+					if "(ev):[{}]=>(lem)[{}]".format(label,w.lower()) in self.fw:
+						d2 = self.fw["(ev):[{}]=>(lem)[{}]".format(label,w.lower())]
+					else:
+						d2 = 0
+
+					scores.append(self._vit_matrix[l, i-1] + d1 + d2)
 
 				#print("scores for each label are:{}".format(scores))
 				# find maximum score and its index
@@ -47,8 +65,9 @@ class Viterbi(object):
 				#print("and put index {} in backpointer matrix".format(index_highest_score))
 
 		# finally, the very last imaginary termination
+
 		scores = [self._vit_matrix[j, -1] +
-					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END")] for j, label in enumerate(self.labels)]
+					self.fw["(ev-1):[{}]->(ev)[{}]".format(label,"END")] if "(ev-1):[{}]->(ev)[{}]".format(label,"END") in self.fw else self._vit_matrix[j, -1] for j, label in enumerate(self.labels)]
 
 		label_index = scores.index(max(scores))  # index of the highest scoring label at termination
 		#print(self._backpointer_matrix)
